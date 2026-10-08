@@ -4,42 +4,49 @@ $tituloPagina = 'Dashboard';
 
 require_once __DIR__ . '/includes/auth.php';
 
-$totalOrders = $pdo->query("
-    SELECT COUNT(*)
-    FROM orders
-")->fetchColumn();
+$totalEvents = $pdo
+    ->query("
+        SELECT COUNT(*)
+        FROM events
+    ")
+    ->fetchColumn();
 
-$totalEvents = $pdo->query("
-    SELECT COUNT(*)
-    FROM events
-")->fetchColumn();
+$totalTickets = $pdo
+    ->query("
+        SELECT COUNT(*)
+        FROM tickets
+    ")
+    ->fetchColumn();
 
-$totalTickets = $pdo->query("
-    SELECT COUNT(*)
-    FROM tickets
-")->fetchColumn();
+$soldTickets = $pdo
+    ->query("
+        SELECT COUNT(*)
+        FROM tickets
+        WHERE status = 'Vendido'
+    ")
+    ->fetchColumn();
 
-$soldTickets = $pdo->query("
-    SELECT COUNT(*)
-    FROM tickets
-    WHERE status = 'Vendido'
-")->fetchColumn();
+$availableTickets = $pdo
+    ->query("
+        SELECT COUNT(*)
+        FROM tickets
+        WHERE status = 'Disponível'
+    ")
+    ->fetchColumn();
 
-$availableTickets = $pdo->query("
-    SELECT COUNT(*)
-    FROM tickets
-    WHERE status = 'Disponível'
-")->fetchColumn();
+$totalCustomers = $pdo
+    ->query("
+        SELECT COUNT(*)
+        FROM customers
+    ")
+    ->fetchColumn();
 
-$totalCustomers = $pdo->query("
-    SELECT COUNT(*)
-    FROM customers
-")->fetchColumn();
-
-$totalRevenue = $pdo->query("
-    SELECT COALESCE(SUM(total), 0)
-    FROM sales
-")->fetchColumn();
+$totalRevenue = $pdo
+    ->query("
+        SELECT COALESCE(SUM(total), 0)
+        FROM sales
+    ")
+    ->fetchColumn();
 
 require_once __DIR__ . '/includes/header.php';
 
@@ -47,44 +54,15 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="container-fluid py-4">
 
-    <div class="mb-4">
+    <h2 class="section-title mb-4">
 
-        <h2 class="section-title mb-1">
-            <i class="bi bi-speedometer2"></i>
-            Dashboard
-        </h2>
+        <i class="bi bi-speedometer2"></i>
 
-        <p class="text-muted mb-0">
-            Visão geral do painel administrativo.
-        </p>
+        Dashboard
 
-    </div>
-
+    </h2>
 
     <div class="row g-4">
-
-        <!-- Pedidos -->
-
-        <div class="col-md-4 col-lg-3">
-
-            <div class="card-dashboard">
-
-                <i class="bi bi-cart-check"></i>
-
-                <h3>
-                    <?= (int) $totalOrders ?>
-                </h3>
-
-                <p>
-                    Pedidos
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <!-- Eventos -->
 
         <div class="col-md-4 col-lg-3">
 
@@ -105,8 +83,6 @@ require_once __DIR__ . '/includes/header.php';
         </div>
 
 
-        <!-- Bilhetes -->
-
         <div class="col-md-4 col-lg-3">
 
             <div class="card-dashboard">
@@ -118,15 +94,13 @@ require_once __DIR__ . '/includes/header.php';
                 </h3>
 
                 <p>
-                    Total de Bilhetes
+                    Total Bilhetes
                 </p>
 
             </div>
 
         </div>
 
-
-        <!-- Bilhetes vendidos -->
 
         <div class="col-md-4 col-lg-3">
 
@@ -147,8 +121,6 @@ require_once __DIR__ . '/includes/header.php';
         </div>
 
 
-        <!-- Bilhetes disponíveis -->
-
         <div class="col-md-4 col-lg-3">
 
             <div class="card-dashboard">
@@ -167,8 +139,6 @@ require_once __DIR__ . '/includes/header.php';
 
         </div>
 
-
-        <!-- Clientes -->
 
         <div class="col-md-4 col-lg-3">
 
@@ -189,25 +159,27 @@ require_once __DIR__ . '/includes/header.php';
         </div>
 
 
-        <!-- Receita -->
-
         <div class="col-md-4 col-lg-3">
 
             <div class="card-dashboard">
 
-                <i class="bi bi-cash-stack"></i>
+                <i class="bi bi-cash"></i>
 
                 <h3>
+
                     <?= number_format(
                         (float) $totalRevenue,
                         2,
                         ',',
                         '.'
-                    ) ?> €
+                    ) ?>
+
+                    €
+
                 </h3>
 
                 <p>
-                    Receita Total
+                    Receita
                 </p>
 
             </div>
@@ -218,4 +190,6 @@ require_once __DIR__ . '/includes/header.php';
 
 </div>
 
-<?php require_once __DIR__ . '/includes/footer.php'; ?>
+<?php
+
+require_once __DIR__ . '/includes/footer.php';
