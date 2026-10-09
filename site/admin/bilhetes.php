@@ -9,19 +9,26 @@ $tickets = $pdo->query("
         tickets.*,
         events.title AS event_title,
         events.event_date,
-        events.venue
+        events.venue,
+        events.price AS event_price,
+        CASE
+            WHEN tickets.ticket_number LIKE '%-GA-%' THEN 'GA'
+            WHEN tickets.ticket_number LIKE '%-VIP-%' THEN 'VIP'
+            WHEN tickets.ticket_number LIKE '%-FS-%' THEN 'FS'
+            ELSE 'Geral'
+        END AS type
     FROM tickets
     LEFT JOIN events ON tickets.event_id = events.id
     ORDER BY tickets.id DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
 
 require_once __DIR__ . '/includes/header.php';
+
 ?>
 
 <div class="container-fluid py-4">
 
     <div class="mb-4">
-
         <h2 class="section-title mb-1">
             <i class="bi bi-ticket-perforated"></i>
             Bilhetes
@@ -30,12 +37,9 @@ require_once __DIR__ . '/includes/header.php';
         <p class="text-muted mb-0">
             Consultar e gerir os bilhetes dos eventos.
         </p>
-
     </div>
 
-
     <div class="card shadow-sm">
-
         <div class="card-body">
 
             <div class="table-responsive">
@@ -56,68 +60,61 @@ require_once __DIR__ . '/includes/header.php';
 
                     <tbody>
 
-                    <?php if (empty($tickets)): ?>
-
-                        <tr>
-                            <td colspan="7" class="text-center py-4">
-                                Não existem bilhetes.
-                            </td>
-                        </tr>
-
-                    <?php else: ?>
-
-                        <?php foreach ($tickets as $ticket): ?>
+                        <?php if (empty($tickets)): ?>
 
                             <tr>
-
-                                <td>
-                                    #<?= (int) $ticket['id'] ?>
+                                <td colspan="7" class="text-center py-4">
+                                    Não existem bilhetes.
                                 </td>
+                            </tr>
 
-                                <td>
-                                    <?= htmlspecialchars(
-                                        $ticket['event_title'] ?? '—'
-                                    ) ?>
-                                </td>
+                        <?php else: ?>
 
-                                <td>
-                                    <?= htmlspecialchars(
-                                        $ticket['event_date'] ?? '—'
-                                    ) ?>
-                                </td>
+                            <?php foreach ($tickets as $ticket): ?>
 
-                                <td>
-                                    <?= htmlspecialchars(
-                                        $ticket['venue'] ?? '—'
-                                    ) ?>
-                                </td>
+                                <tr>
 
-                                <td>
-                                    <?= htmlspecialchars(
-                                        $ticket['type'] ?? '—'
-                                    ) ?>
-                                </td>
+                                    <td>
+                                        #<?= (int) $ticket['id'] ?>
+                                    </td>
 
-                                <td>
-                                    <?php if (isset($ticket['price'])): ?>
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            $ticket['event_title'] ?? '—'
+                                        ) ?>
+                                    </td>
 
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            $ticket['event_date'] ?? '—'
+                                        ) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            $ticket['venue'] ?? '—'
+                                        ) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            $ticket['type'] ?? '—'
+                                        ) ?>
+                                    </td>
+
+                                    <td>
                                         <?= number_format(
-                                            (float) $ticket['price'],
+                                            (float) (
+                                                $ticket['event_price']
+                                                ?? $ticket['price']
+                                            ),
                                             2,
                                             ',',
                                             '.'
                                         ) ?> €
+                                    </td>
 
-                                    <?php else: ?>
-
-                                        —
-
-                                    <?php endif; ?>
-                                </td>
-
-                                <td>
-
-                                    <?php if (isset($ticket['status'])): ?>
+                                    <td>
 
                                         <?php if ($ticket['status'] === 'Vendido'): ?>
 
@@ -134,24 +131,20 @@ require_once __DIR__ . '/includes/header.php';
                                         <?php else: ?>
 
                                             <span class="badge bg-secondary">
-                                                <?= htmlspecialchars($ticket['status']) ?>
+                                                <?= htmlspecialchars(
+                                                    $ticket['status'] ?? '—'
+                                                ) ?>
                                             </span>
 
                                         <?php endif; ?>
 
-                                    <?php else: ?>
+                                    </td>
 
-                                        —
+                                </tr>
 
-                                    <?php endif; ?>
+                            <?php endforeach; ?>
 
-                                </td>
-
-                            </tr>
-
-                        <?php endforeach; ?>
-
-                    <?php endif; ?>
+                        <?php endif; ?>
 
                     </tbody>
 
@@ -160,7 +153,6 @@ require_once __DIR__ . '/includes/header.php';
             </div>
 
         </div>
-
     </div>
 
 </div>

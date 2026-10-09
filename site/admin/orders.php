@@ -5,16 +5,13 @@ $tituloPagina = 'Pedidos';
 require_once __DIR__ . '/includes/auth.php';
 
 $orders = $pdo->query("
-    SELECT 
-        orders.*,
-        customers.name AS customer_name
+    SELECT *
     FROM orders
-    LEFT JOIN customers 
-        ON orders.customer_id = customers.id
-    ORDER BY orders.id DESC
+    ORDER BY id DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
 
 require_once __DIR__ . '/includes/header.php';
+
 ?>
 
 <div class="container-fluid py-4">
@@ -30,13 +27,10 @@ require_once __DIR__ . '/includes/header.php';
         </p>
     </div>
 
-
     <div class="card shadow-sm">
-
         <div class="card-body">
 
             <div class="table-responsive">
-
                 <table class="table table-hover align-middle">
 
                     <thead>
@@ -65,7 +59,6 @@ require_once __DIR__ . '/includes/header.php';
                         <?php foreach ($orders as $order): ?>
 
                             <tr>
-
                                 <td>
                                     #<?= (int) $order['id'] ?>
                                 </td>
@@ -85,24 +78,16 @@ require_once __DIR__ . '/includes/header.php';
                                 </td>
 
                                 <td>
-                                    <?php
-                                    if (isset($order['total'])):
-                                    ?>
-                                        <?= number_format(
-                                            (float) $order['total'],
-                                            2,
-                                            ',',
-                                            '.'
-                                        ) ?> €
-                                    <?php else: ?>
-                                        —
-                                    <?php endif; ?>
+                                    <?= number_format(
+                                        (float) $order['total'],
+                                        2,
+                                        ',',
+                                        '.'
+                                    ) ?> €
                                 </td>
 
                                 <td>
-                                    <?php
-                                    if (isset($order['status'])):
-                                    ?>
+                                    <?php if (isset($order['status'])): ?>
                                         <span class="badge bg-secondary">
                                             <?= htmlspecialchars($order['status']) ?>
                                         </span>
@@ -112,29 +97,18 @@ require_once __DIR__ . '/includes/header.php';
                                 </td>
 
                                 <td>
-                                    <?php
-                                    if (isset($order['created_at'])) {
-                                        echo htmlspecialchars($order['created_at']);
-                                    } elseif (isset($order['order_date'])) {
-                                        echo htmlspecialchars($order['order_date']);
-                                    } else {
-                                        echo '—';
-                                    }
-                                    ?>
+                                    <?= htmlspecialchars($order['created_at'] ?? '—') ?>
                                 </td>
 
                                 <td>
-
                                     <a
-                                        href="detalhes.php?id=<?= (int) $order['id'] ?>"
+                                        href="order_details.php?id=<?= (int) $order['id'] ?>"
                                         class="btn btn-sm btn-primary"
                                     >
                                         <i class="bi bi-eye"></i>
                                         Ver detalhes
                                     </a>
-
                                 </td>
-
                             </tr>
 
                         <?php endforeach; ?>
@@ -144,11 +118,9 @@ require_once __DIR__ . '/includes/header.php';
                     </tbody>
 
                 </table>
-
             </div>
 
         </div>
-
     </div>
 
 </div>

@@ -35,7 +35,7 @@ $items = $stmt->fetchAll();
 <head>
     <meta charset="UTF-8">
     <title>Detalhes do Pedido #<?= $orderId ?></title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin.css">
 </head>
 <body class="pg-order-details">
     <h1>Detalhes do Pedido #<?= $orderId ?></h1>
@@ -57,8 +57,8 @@ $items = $stmt->fetchAll();
             <tr>
                 <td><img src="<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['name']) ?>" width="50"> <?= htmlspecialchars($item['name']) ?></td>
                 <td><?= number_format($item['price'], 2, ',', '.') ?> €</td>
-                <td><?= $item['quantity'] ?></td>
-                <td><?= number_format($item['price'] * $item['quantity'], 2, ',', '.') ?> €</td>
+                <td><?= $item['qty'] ?></td>
+                <td><?= number_format($item['price'] * $item['qty'], 2, ',', '.') ?> €</td>
             </tr>
             <?php endforeach; ?>
         </tbody>

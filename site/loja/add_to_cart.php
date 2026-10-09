@@ -1,38 +1,63 @@
 <?php
-session_start();
-require '../../conexao/db.php';
 
+session_start();
+
+require_once __DIR__ . '/../../conexao/db.php';
+
+header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-header('Location: ../index.php'); exit;
+    http_response_code(405);
+
+    echo json_encode([
+        'success' => false,
+        'message' => 'Método não permitido.'
+    ]);
+
+    exit;
 }
 
+$id = (int) ($_POST['id'] ?? 0);
+$qty = max(1, (int) ($_POST['qty'] ?? 1));
 
-$id = (int)($_POST['id'] ?? 0);
-$qty = max(1, (int)($_POST['qty'] ?? 1));
+$stmt = $pdo->prepare(
+    'SELECT id, name, price FROM products WHERE id = ?'
+);
 
+$stmt->execute([$id]);
 
-$stm = $pdo->prepare('SELECT id,name,price FROM products WHERE id = ?');
-$stm->execute([$id]);
-$product = $stm->fetch();
-if (!$product) { header('Location: ../index.php'); exit; }
+$product = $stmt->fetch(PDO::FETCH_ASSOC);
 
+if (!$product) {
+    http_response_code(404);
 
-if (!isset($_SESSION['cart'])) $_SESSION['cart'] = [];
+    echo json_encode([
+        'success' => false,
+        'message' => 'Produto não encontrado.'
+    ]);
 
+    exit;
+}
 
-// se já existe, incrementa
+if (!isset($_SESSION['cart'])) {
+    $_SESSION['cart'] = [];
+}
+
 if (isset($_SESSION['cart'][$id])) {
-$_SESSION['cart'][$id]['qty'] += $qty;
+    $_SESSION['cart'][$id]['qty'] += $qty;
 } else {
-$_SESSION['cart'][$id] = [
-'id' => $product['id'],
-'name' => $product['name'],
-'price' => $product['price'],
-'qty' => $qty
-];
+    $_SESSION['cart'][$id] = [
+        'id' => $product['id'],
+        'name' => $product['name'],
+        'price' => $product['price'],
+        'qty' => $qty
+    ];
 }
 
+echo json_encode([
+    'success' => true,
+    'cart_count' => count($_SESSION['cart']),
+    'message' => 'Produto adicionado ao carrinho.'
+]);
 
-header('Location: cart.php');
 exit;
